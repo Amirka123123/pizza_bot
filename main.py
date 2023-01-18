@@ -1,10 +1,9 @@
 from telebot import TeleBot
 from telebot.types import KeyboardButton, ReplyKeyboardMarkup
 import sqlite3
-from constants import get_products_query
+from constants import get_products_query, create_new_user_query
 
-
-TOKEN = '5943242364:AAEDa7ko4pgcCKnzSOw7WdvU8eYMH8OWD6M'
+TOKEN = '5810449448:AAHiFZR1N-ZaXZ3Ipa9GKseAeal-E9NQeig'
 
 bot = TeleBot(TOKEN, parse_mode=None)
 
@@ -32,11 +31,16 @@ def get_product_names() -> list:
     try:
         conn = sqlite3.connect("pizza_database.db")
         cursor = conn.cursor()
+        sql = get_products_query()
+        cursor.execute(sql)
 
-
+        for product in cursor.fetchall():
+            products.append(product[0])
 
     except Exception as e:
         print(e)
+
+    return products
 
 
 def menu_keyboard():
@@ -65,10 +69,37 @@ def menu_keyboard():
     return keyboard
 
 
+def get_user_details_keyboard():
+    keybord = ReplyKeyboardMarkup(resize_keyboard=True)
+    get_phone_buttom = KeyboardButton("Введите номер телефона")
+    get_address_buttom = KeyboardButton("Введите свой адрес")
+
+    keybord.add(get_phone_buttom)
+    keybord.add(get_address_buttom)
+
+    return keybord
+
+
+def create_user(chat_id):
+
+    try:
+        conn = sqlite3.connect('pizza_database.db')
+        cursor = conn.cursor()
+
+        sql = create_new_user_query(chat_id)
+        cursor.execute(sql)
+
+
+    except Exception as e:
+        print(e)
+
 @bot.message_handler(commands=['start'])
 def start_handler(message):
+    chat_id = message.chat.id
+
+    create_user(chat_id)
     reply = "Вас приветствует бот доставки пиццы."
-    bot.reply_to(message, reply, reply_markup=main_menu_keyboard())
+    bot.reply_to(message, reply, reply_markup=get_user_details_keyboard())
 
 
 @bot.message_handler(func=lambda message: message.text == 'Меню')
