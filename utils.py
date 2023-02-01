@@ -15,6 +15,11 @@ class MenuStack:
         del self.elements[-1]
         return popped_element
 
+    def top(self):
+        if len(self.elements) == 0:
+            return self.default_menu
+        return self.elements[-1]
+
     def __str__(self):
         return str(self.elements)
 
@@ -32,9 +37,11 @@ def check_phone_number(chat_id):
 
         cursor.execute(sql)
         conn.commit()
-        if cursor.rowcount < 1:
-            return False
-        return True
+        result = conn.cursor()
+
+        if result is not None:
+            return True
+        return False
     except Exception as e:
         print("Database error")
         print(e)
@@ -48,9 +55,10 @@ def check_address(chat_id):
 
         cursor.execute(sql)
         conn.commit()
-        if cursor.rowcount < 1:
-            return False
-        return True
+        result = cursor.fetchone()
+        if result is not None:
+            return True
+        return False
     except Exception as e:
         print("Database error")
         print(e)

@@ -6,7 +6,7 @@ from telebot.types import KeyboardButton, ReplyKeyboardMarkup
 from constants import get_products_query, create_new_user_query
 from utils import MenuStack, check_phone_number, check_address, set_integer_flag, get_integer_flag, update_user_filed
 
-TOKEN = '5943242364:AAEDa7ko4pgcCKnzSOw7WdvU8eYMH8OWD6M'
+TOKEN = '5810449448:AAHiFZR1N-ZaXZ3Ipa9GKseAeal-E9NQeig'
 
 bot = TeleBot(TOKEN, parse_mode=None)
 
@@ -94,13 +94,6 @@ def update_address_number(message):
                          "Введите адрес:")
 
 
-@bot.message_handler(content_types=['text'])
-def random_message_handler(message):
-    chat_id = message.chat.id
-    create_user(chat_id)
-    check_phone_if_yes_update(chat_id, message)
-    check_address_if_yes_update(chat_id, message)
-
 def check_phone_if_yes_update(chat_id, message):
     if get_integer_flag(column_name='phone_being_entered',
                         table_name='user',
@@ -175,8 +168,23 @@ def menu_handler(message):
 
 @bot.message_handler(func=lambda message: message.text == '<< Назад')
 def back_handler(message):
-    menu_to_go_back = stack.pop()
-    bot.send_message(message.chat.id, "Предидущее меню:", reply_markup=menu_to_go_back)
+    stack.pop()
+    menu_to_go_back = stack.top()
+    bot.send_message(message.chat.id, "Предидущее меню:", reply_markup=stack.top())
+
+
+@bot.message_handler(func=lambda message: message.text in get_product_names())
+def product_handler(message):
+    product_name = message.text
+    product_description, product_price = get_product_data(product_name)
+
+
+@bot.message_handler(content_types=['text'])
+def random_message_handler(message):
+    chat_id = message.chat.id
+    create_user(chat_id)
+    check_phone_if_yes_update(chat_id, message)
+    check_address_if_yes_update(chat_id, message)
 
 
 #
