@@ -45,3 +45,38 @@ def get_product_data_sql(product_name):
 def get_product_id_from_user_sql(chat_id):
     sql = f"SELECT choosen_product FROM user WHERE id = {chat_id}"
     return sql
+
+
+def get_basket_for_user(chat_id):
+    sql = f"""
+    SELECT products.name, basket.amount, products.price, basket.id
+    FROM basket
+    JOIN products on basket.product_id = products.id          
+    WHERE user_id = {chat_id}
+    """
+
+    return sql
+
+
+def get_basket_id_for_basket_item(chat_id, product_name, amount):
+    sql = f"""
+    SELECT basket.id
+    FROM basket
+    JOIN products on basket.product_id = products.id          
+    WHERE user_id = {chat_id}
+    AND products.name = '{product_name}'
+    AND basket.amount = {amount}
+    """
+
+    return sql
+
+
+def delete_product_from_basket(chat_id, product_name, amount):
+    sub_sql = get_basket_id_for_basket_item(chat_id, product_name, amount)
+    sql = f"""
+    DELETE FROM basket
+    WHERE basket.user_id = {chat_id}
+    AND basket.id in ({sub_sql})
+    """
+
+    return sql
