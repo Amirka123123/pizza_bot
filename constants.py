@@ -80,3 +80,16 @@ def delete_product_from_basket(chat_id, product_name, amount):
     """
 
     return sql
+
+
+def create_order_sql(chat_id):
+    sql = f"""INSERT INTO "Order" (user_id) VALUES ({chat_id});
+    """
+    return sql
+
+
+def get_order_id(chat_id):
+    sql = f"""SELECT id from "Order" WHERE user_id = {chat_id}"""
+    return sql
+
+

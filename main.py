@@ -6,7 +6,7 @@ from telebot.types import KeyboardButton, ReplyKeyboardMarkup
 from constants import get_products_query, create_new_user_query
 from utils import MenuStack, check_phone_number, check_address, set_integer_flag, get_integer_flag, update_user_filed, \
     get_product_data, start_getting_quantity, get_product_from_user, insert_data_to_basket, fetch_basket_data, \
-    delete_item_from_basket
+    delete_item_from_basket, move_products_from_basket_to_order
 
 TOKEN = '5810449448:AAHiFZR1N-ZaXZ3Ipa9GKseAeal-E9NQeig'
 
@@ -297,7 +297,7 @@ def delete_product_handler(message):
 def order_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
 
-    share_contact_button = KeyboardButton("Поделитесь номером телефона",request_contact=True)
+    share_contact_button = KeyboardButton("Поделитесь номером телефона", request_contact=True)
 
     share_location_button = KeyboardButton("Отправить локацию", request_location=True)
 
@@ -326,6 +326,10 @@ def check_for_order_being_entered(message):
             location = message.location
             location = (location.latitude, location.longitude)
             update_user_filed(message.chat.id, "address", str(location))
+            set_integer_flag(0, "order_being_made", "user", message.chat.id)
+            move_products_from_basket_to_order(message.chat.id)
+            #clear_basket(message.chat.id)
+            bot.send_message(message.chat.id, "Ваш заказ принят!")
 
 
 @bot.message_handler(content_types=['text', 'contact', 'location'])
